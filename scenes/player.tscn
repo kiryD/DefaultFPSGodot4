@@ -1,0 +1,303 @@
+[gd_scene load_steps=22 format=3 uid="uid://db1uthkaxx8h7"]
+
+[ext_resource type="Script" path="res://scripts/player.gd" id="1_g2df3"]
+[ext_resource type="Script" path="res://scripts/steam.gd" id="2_drdak"]
+[ext_resource type="Script" path="res://scripts/camera.gd" id="3_byyfy"]
+[ext_resource type="Shader" path="res://shaders/postproc.gdshader" id="4_8xqc0"]
+[ext_resource type="Script" path="res://scripts/FlashlightControl.gd" id="5_8q301"]
+[ext_resource type="FontFile" uid="uid://xn3m0gw00c0b" path="res://fonts/3270NerdFont-Regular.ttf" id="6_lmx1a"]
+[ext_resource type="Script" path="res://scripts/Cursor.gd" id="7_wk45q"]
+[ext_resource type="AudioStream" uid="uid://bv46xjknskhqo" path="res://sounds/FIGHTER_SNARE_2.wav" id="8_kvj7j"]
+
+[sub_resource type="Curve" id="Curve_i3hnj"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.28169, 0.326316), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_ye6iy"]
+curve = SubResource("Curve_i3hnj")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_0w57q"]
+gravity = Vector3(0, 0, 0)
+scale_curve = SubResource("CurveTexture_ye6iy")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1tgd1"]
+transparency = 1
+albedo_color = Color(1, 1, 1, 0.113725)
+
+[sub_resource type="BoxMesh" id="BoxMesh_vdahc"]
+material = SubResource("StandardMaterial3D_1tgd1")
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_kjnkm"]
+
+[sub_resource type="Gradient" id="Gradient_cnaqc"]
+offsets = PackedFloat32Array(0, 0.266667, 0.466667, 0.733333, 1)
+colors = PackedColorArray(0.211765, 0.270588, 0.231373, 1, 0.360366, 0.4081, 0.376278, 1, 0.496046, 0.533655, 0.508582, 1, 1, 0.752941, 0.623529, 1, 0.85098, 0.956863, 0.780392, 1)
+metadata/_snap_enabled = true
+metadata/_snap_count = 15
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_0vbrv"]
+gradient = SubResource("Gradient_cnaqc")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jcw1s"]
+shader = ExtResource("4_8xqc0")
+shader_parameter/pixel = 2.0
+shader_parameter/pallete = SubResource("GradientTexture1D_0vbrv")
+
+[sub_resource type="Animation" id="Animation_uei6r"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ProgressBar:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_pd7q5"]
+resource_name = "turnoff"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ProgressBar:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(50, 0), Vector2(63, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_trruk"]
+resource_name = "turnon"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ProgressBar:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.3, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(63, 0), Vector2(50, 0), Vector2(0, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_pf4oi"]
+_data = {
+"RESET": SubResource("Animation_uei6r"),
+"turnoff": SubResource("Animation_pd7q5"),
+"turnon": SubResource("Animation_trruk")
+}
+
+[node name="Player" type="CharacterBody3D" groups=["player"]]
+script = ExtResource("1_g2df3")
+
+[node name="Head" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="SpotLight3D" type="SpotLight3D" parent="Head"]
+visible = false
+light_energy = 3.0
+light_volumetric_fog_energy = 1.324
+shadow_enabled = true
+distance_fade_enabled = true
+spot_range = 40.0
+spot_angle = 30.0
+
+[node name="RayCast3D" type="RayCast3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, -0.087578)
+target_position = Vector3(0, -2, 0)
+collision_mask = 2
+collide_with_areas = true
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="Head"]
+transform = Transform3D(1, 0, 5.96046e-08, 0, 1, 0, -5.96046e-08, 0, 1, -0.00258994, -0.355147, -0.670303)
+emitting = false
+visibility_aabb = AABB(-0.3, -0.3, -0.3, 0.6, 0.6, 0.6)
+process_material = SubResource("ParticleProcessMaterial_0w57q")
+draw_pass_1 = SubResource("BoxMesh_vdahc")
+script = ExtResource("2_drdak")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_kjnkm")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+script = ExtResource("3_byyfy")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer"]
+modulate = Color(1, 1, 1, 0.384314)
+z_index = -565
+material = SubResource("ShaderMaterial_jcw1s")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ColorRect2" type="ColorRect" parent="CanvasLayer"]
+z_index = -565
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="ColorRect3" type="ColorRect" parent="CanvasLayer"]
+z_index = -565
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="FlashLightSystem" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -63.0
+offset_top = -252.0
+grow_horizontal = 0
+grow_vertical = 0
+script = ExtResource("5_8q301")
+
+[node name="ProgressBar" type="ProgressBar" parent="CanvasLayer/FlashLightSystem"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 2583.0
+offset_bottom = 10332.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("6_lmx1a")
+value = 100.0
+fill_mode = 3
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="CanvasLayer/FlashLightSystem"]
+libraries = {
+"": SubResource("AnimationLibrary_pf4oi")
+}
+
+[node name="Cursor" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -3.0
+offset_top = -3.0
+offset_right = 3.0
+offset_bottom = 3.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("7_wk45q")
+
+[node name="ColorRect4" type="ColorRect" parent="CanvasLayer/Cursor"]
+z_index = -2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -1.0
+offset_top = -1.0
+offset_right = 1.0
+offset_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="ColorRect3" type="ColorRect" parent="CanvasLayer/Cursor"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/Cursor"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -38.0
+offset_top = 7.0
+offset_right = 39.0
+offset_bottom = 31.0
+grow_horizontal = 2
+theme_override_fonts/font = ExtResource("6_lmx1a")
+theme_override_font_sizes/font_size = 21
+text = "E - Use"
+horizontal_alignment = 1
+clip_text = true
+
+[node name="ColorRect5" type="ColorRect" parent="CanvasLayer/Cursor/Label"]
+z_index = -2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.376471)
+
+[node name="Hint" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+grow_horizontal = 2
+
+[node name="Label" type="Label" parent="CanvasLayer/Hint"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -21.0
+offset_right = 21.0
+offset_bottom = 55.0
+grow_horizontal = 2
+theme_override_fonts/font = ExtResource("6_lmx1a")
+theme_override_font_sizes/font_size = 40
+horizontal_alignment = 1
+
+[node name="Label2" type="Label" parent="CanvasLayer/Hint"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.5
+offset_left = -28.5
+offset_top = 32.0
+offset_right = 28.5
+offset_bottom = 87.0
+grow_horizontal = 2
+theme_override_fonts/font = ExtResource("6_lmx1a")
+theme_override_font_sizes/font_size = 20
+vertical_alignment = 1
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+stream = ExtResource("8_kvj7j")
+volume_db = -23.0
+pitch_scale = 3.25
+
+[connection signal="collide" from="." to="CanvasLayer/Cursor" method="_on_player_collide"]
+[connection signal="notcollide" from="." to="CanvasLayer/Cursor" method="_on_player_notcollide"]
