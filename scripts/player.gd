@@ -72,7 +72,7 @@ func _physics_process(delta):
 	# Handle jump.
 	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
-		fadein()
+
 	#tick for head bob
 	tick += 1
 	#step and bob! sound
